@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Task {
 
-    private static int taskCount = 0;
-    private int id;
+    private static long taskCount = 0;
+    private long id;
     private String title;
     private String description;
     private TaskState state;
@@ -17,14 +17,14 @@ public class Task {
         this.description = description;
     }
 
-    public Task(int id, String title, String description, TaskState state) {
+    public Task(long id, String title, String description, TaskState state) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.state = state;
     }
 
-    public Task (int id){
+    public Task (long id){
         this.id = id;
     }
 
@@ -48,6 +48,18 @@ public class Task {
         this.state = TaskState.DONE;
     }
 
+    public void setTitle(String title) {
+        if (title != null && !title.isEmpty()) {
+            this.title = title;
+        }
+    }
+
+    public void setDescription(String description) {
+        if (description != null && !description.isEmpty()) {
+            this.description = description;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,5 +70,15 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                "title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", state=" + state +
+                '}';
     }
 }
