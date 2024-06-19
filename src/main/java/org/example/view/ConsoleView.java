@@ -112,6 +112,11 @@ public class ConsoleView {
                     break;
                 case 7:
                     running = false;
+                    try{
+                        this.manager.storeTasks();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     System.out.println("Saliendo de la aplicación.");
                     break;
                 default:
