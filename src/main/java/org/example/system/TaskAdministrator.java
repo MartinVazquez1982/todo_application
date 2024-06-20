@@ -21,6 +21,7 @@ public class TaskAdministrator {
         } catch (IOException e) {
             this.tasks = new ArrayList<>();
             this.loadedNoError = false;
+            System.out.println(e.getMessage());
         }
     }
 

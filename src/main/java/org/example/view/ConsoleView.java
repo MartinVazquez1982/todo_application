@@ -2,6 +2,10 @@ package org.example.view;
 
 import org.example.system.Task;
 import org.example.system.TaskAdministrator;
+import org.example.system.TaskState;
+import org.example.view.cleanConsole.CleanConsole;
+import org.example.view.cleanConsole.LinuxCleanner;
+import org.example.view.cleanConsole.WindowsCleanner;
 
 import java.util.List;
 import java.util.Scanner;
@@ -13,17 +17,25 @@ public class ConsoleView {
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_CLS = "\u001b[2J";
-    public static final String ANSI_HOME = "\u001b[H";
 
     private TaskAdministrator manager;
+    private CleanConsole cleanner;
 
     public ConsoleView(TaskAdministrator manager) {
         this.manager = manager;
+        if (System.getProperty("os.name").contains("Windows")) {
+            this.cleanner = new WindowsCleanner();
+        } else {
+            this.cleanner = new LinuxCleanner();
+        }
+    }
+
+    private void printTitle(String title) {
+        System.out.println("\n" + ANSI_BLUE + title + ANSI_RESET);
     }
 
     private void displayMenu() {
-        System.out.println("\n--- Menú de To-Do List ---");
+        printTitle("--- Menú de To-Do List ---");
         System.out.println("1. Crear tarea");
         System.out.println("2. Listar tareas");
         System.out.println("3. Actualizar tarea");
@@ -34,7 +46,8 @@ public class ConsoleView {
         System.out.print("Elija una opción: ");
     }
 
-    public void createTask(){
+    private void createTask(){
+        printTitle("Crear tarea");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el titulo: ");
         String title = scanner.nextLine();
@@ -43,21 +56,53 @@ public class ConsoleView {
         this.manager.addTask(new Task(title,descripcion));
     }
 
-    public void listTasks(){
+    private void listTasks(){
         List<Task> tasks = this.manager.getTasks();
+        printTitle("=== Lista de Tareas ===");
+        StringBuilder toDo = new StringBuilder();
+        StringBuilder inProgress = new StringBuilder();
+        StringBuilder completed = new StringBuilder();
         for (Task task : tasks) {
-            System.out.println(task);
+            TaskState state = task.getState();
+            switch (state) {
+                case IN_PROGRESS:
+                    inProgress.append(task.getId());
+                    inProgress.append(" -- ");
+                    inProgress.append(task.getTitle());
+                    inProgress.append("\n");
+                    break;
+                case TODO:
+                    toDo.append(task.getId());
+                    toDo.append(" -- ");
+                    toDo.append(task.getTitle());
+                    toDo.append("\n");
+                    break;
+                default:
+                    completed.append(task.getId());
+                    completed.append(" -- ");
+                    completed.append(task.getTitle());
+                    completed.append("\n");
+                    break;
+            }
         }
+        System.out.println(" == To Do == ");
+        System.out.println(ANSI_RED + toDo.toString() + ANSI_RESET);
+        System.out.println(" == In Progress == ");
+        System.out.println(ANSI_YELLOW + inProgress.toString() + ANSI_RESET);
+        System.out.println(" == Completed == ");
+        System.out.println(ANSI_GREEN + completed.toString() + ANSI_RESET);
     }
 
-    public void deleteTask(){
+    private void deleteTask(){
+        printTitle("Borrar una tarea");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nro: ");
         long nro = scanner.nextLong();
         this.manager.removeTask(new Task(nro));
     }
 
-    public void updateTask(){
+    private void updateTask(){
+        printTitle("Actualizar una tarea");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nro: ");
         long nro = scanner.nextLong();
@@ -68,29 +113,41 @@ public class ConsoleView {
         this.manager.editTask(nro, title, descripcion);
     }
 
-    public void taskToInProgress(){
+    private void taskToInProgress(){
+        printTitle("Pasar tarea a 'En proceso' ");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nro: ");
         long nro = scanner.nextLong();
         this.manager.taskToInProgress(new Task(nro));
     }
 
-    public void taskToInDone(){
+    private void taskToInDone(){
+        printTitle("Pasar tarea a 'Completada' ");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nro: ");
         long nro = scanner.nextLong();
         this.manager.taskToInDone(new Task(nro));
     }
 
+    private void waitToPressEnter() {
+        System.out.println("Presiona Enter para continuar...");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+        try {
+            this.cleanner.clean();
+        } catch (Exception e) {
+            System.out.println("\n ==================================== \n");
+        }
+    }
+
     public void runApp(){
+        System.out.println(this.manager.wasLoadedNoError());
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
         do {
             displayMenu();
             int choice = scanner.nextInt();
             scanner.nextLine();
-            System.out.print(ANSI_CLS + ANSI_HOME);
-            System.out.flush();
             switch (choice) {
                 case 1:
                     createTask();
@@ -121,6 +178,9 @@ public class ConsoleView {
                     break;
                 default:
                     System.out.println("Opción no válida. Por favor, elija una opción del 1 al 7.");
+            }
+            if (running){
+                waitToPressEnter();
             }
         } while (running);
     }
