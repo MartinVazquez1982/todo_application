@@ -17,11 +17,11 @@ public class Task {
         this.description = description;
     }
 
-    public Task(long id, String title, String description, TaskState state) {
-        this.id = id;
+    public Task(String title, String description, TaskState state) {
+        this.id = ++taskCount;
+        this.state = state;
         this.title = title;
         this.description = description;
-        this.state = state;
     }
 
     public Task (long id){

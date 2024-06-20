@@ -10,11 +10,17 @@ public class TaskAdministrator {
 
     private ArrayList<Task> tasks = new ArrayList<>();
     private CsvFileManager fileManager;
+    private boolean loadedNoError = true;
 
-    public TaskAdministrator(CsvFileManager fileManager) throws IOException {
+    public TaskAdministrator(CsvFileManager fileManager) {
         this.fileManager = fileManager;
-        for (List<String> task : fileManager.read()) {
-            this.tasks.add(new Task(Long.parseLong(task.get(0)), task.get(1), task.get(2), TaskState.valueOf(task.get(3))));
+        try {
+            for (List<String> task : fileManager.read()) {
+                this.tasks.add(new Task(task.get(0), task.get(1), TaskState.valueOf(task.get(2))));
+            }
+        } catch (IOException e) {
+            this.tasks = new ArrayList<>();
+            this.loadedNoError = false;
         }
     }
 
@@ -52,4 +58,13 @@ public class TaskAdministrator {
         this.fileManager.writeAllTasks(tasks);
     }
 
+    public boolean wasLoadedNoError() {
+        return loadedNoError;
+    }
+
+    public void setFileManager(CsvFileManager fileManager) {
+        if (fileManager != null) {
+            this.fileManager = fileManager;
+        }
+    }
 }

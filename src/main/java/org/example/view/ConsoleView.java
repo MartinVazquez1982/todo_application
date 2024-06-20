@@ -24,7 +24,7 @@ public class ConsoleView {
 
     private void displayMenu() {
         System.out.println("\n--- Menú de To-Do List ---");
-        System.out.println(ANSI_RED + "1. Crear tarea" + ANSI_RESET);
+        System.out.println("1. Crear tarea");
         System.out.println("2. Listar tareas");
         System.out.println("3. Actualizar tarea");
         System.out.println("4. Eliminar tarea");
