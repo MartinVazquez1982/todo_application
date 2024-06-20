@@ -78,11 +78,13 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", state=" + state +
-                '}';
+        return String.format(
+                        "\n => Tarea <= \n" +
+                        " => Id: %d,\n" +
+                        " => Titulo: '%s',\n" +
+                        " => Descripcion: '%s',\n" +
+                        " => Estado: %s",
+                id, title, description, state
+        );
     }
 }

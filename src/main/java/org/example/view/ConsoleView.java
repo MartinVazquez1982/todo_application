@@ -8,6 +8,7 @@ import org.example.view.cleanConsole.LinuxCleanner;
 import org.example.view.cleanConsole.WindowsCleanner;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ConsoleView {
@@ -31,18 +32,19 @@ public class ConsoleView {
     }
 
     private void printTitle(String title) {
-        System.out.println("\n" + ANSI_BLUE + title + ANSI_RESET);
+        System.out.println("\n" + ANSI_BLUE + " ===> " + title + " <=== " + ANSI_RESET);
     }
 
     private void displayMenu() {
-        printTitle("--- Menú de To-Do List ---");
+        printTitle("MENU DE TO DO");
         System.out.println("1. Crear tarea");
         System.out.println("2. Listar tareas");
-        System.out.println("3. Actualizar tarea");
-        System.out.println("4. Eliminar tarea");
-        System.out.println("5. Marcar tarea como en proceso");
-        System.out.println("6. Marcar tarea como completada");
-        System.out.println("7. Salir");
+        System.out.println("3. Detalle de una tarea");
+        System.out.println("4. Actualizar tarea");
+        System.out.println("5. Eliminar tarea");
+        System.out.println("6. Marcar tarea como en proceso");
+        System.out.println("7. Marcar tarea como completada");
+        System.out.println("8. Salir");
         System.out.print("Elija una opción: ");
     }
 
@@ -56,9 +58,17 @@ public class ConsoleView {
         this.manager.addTask(new Task(title,descripcion));
     }
 
+    private void loadOutputStateList(StringBuilder list, Task task){
+        list.append(" ");
+        list.append(task.getId());
+        list.append(" | ");
+        list.append(task.getTitle());
+        list.append("\n");
+    }
+
     private void listTasks(){
         List<Task> tasks = this.manager.getTasks();
-        printTitle("=== Lista de Tareas ===");
+        printTitle("Lista de Tareas");
         StringBuilder toDo = new StringBuilder();
         StringBuilder inProgress = new StringBuilder();
         StringBuilder completed = new StringBuilder();
@@ -66,22 +76,13 @@ public class ConsoleView {
             TaskState state = task.getState();
             switch (state) {
                 case IN_PROGRESS:
-                    inProgress.append(task.getId());
-                    inProgress.append(" -- ");
-                    inProgress.append(task.getTitle());
-                    inProgress.append("\n");
+                    loadOutputStateList(inProgress, task);
                     break;
                 case TODO:
-                    toDo.append(task.getId());
-                    toDo.append(" -- ");
-                    toDo.append(task.getTitle());
-                    toDo.append("\n");
+                    loadOutputStateList(toDo, task);
                     break;
                 default:
-                    completed.append(task.getId());
-                    completed.append(" -- ");
-                    completed.append(task.getTitle());
-                    completed.append("\n");
+                    loadOutputStateList(completed, task);
                     break;
             }
         }
@@ -93,44 +94,72 @@ public class ConsoleView {
         System.out.println(ANSI_GREEN + completed.toString() + ANSI_RESET);
     }
 
+    private long requestId(){
+        boolean running = true;
+        Scanner scanner = new Scanner(System.in);
+        long salida = -1;
+        do {
+            try {
+                System.out.print(" Ingrese el nro: ");
+                salida = scanner.nextLong();
+                running = false;
+            } catch(Exception e){
+                scanner.nextLine();
+                System.out.println(ANSI_RED + "\n Entrada no valida \n" + ANSI_RESET);
+            }
+        } while (running);
+        return salida;
+    }
+
+    private void taskDetail() {
+        printTitle("Detalle de una tarea");
+        long nro = requestId();
+        Optional<Task> task = this.manager.getTask(new Task(nro));
+        if (task.isPresent()) {
+            System.out.println(task.get());
+        } else {
+            System.out.println("No existe la tarea");
+        }
+    }
+
     private void deleteTask(){
         printTitle("Borrar una tarea");
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese el nro: ");
-        long nro = scanner.nextLong();
+        long nro = requestId();
         this.manager.removeTask(new Task(nro));
     }
 
     private void updateTask(){
         printTitle("Actualizar una tarea");
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese el nro: ");
-        long nro = scanner.nextLong();
-        System.out.print("Ingrese el nuevo titulo: ");
-        String title = scanner.nextLine();
-        System.out.print("Ingrese el nueva descripcion: ");
-        String descripcion = scanner.nextLine();
-        this.manager.editTask(nro, title, descripcion);
+        long nro = requestId();
+        Optional<Task> task = this.manager.getTask(new Task(nro));
+        if (task.isPresent()) {
+            System.out.println(task.get());
+            System.out.println("\n Ingrese los cambios: \n");
+            System.out.print(" =Ingrese el nuevo titulo= ");
+            String title = scanner.nextLine();
+            System.out.print(" Ingrese la nueva descripcion: ");
+            String descripcion = scanner.nextLine();
+            this.manager.editTask(nro, title, descripcion);
+        } else {
+            System.out.println("No existe la tarea");
+        }
     }
 
     private void taskToInProgress(){
         printTitle("Pasar tarea a 'En proceso' ");
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese el nro: ");
-        long nro = scanner.nextLong();
+        long nro = requestId();
         this.manager.taskToInProgress(new Task(nro));
     }
 
     private void taskToInDone(){
         printTitle("Pasar tarea a 'Completada' ");
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese el nro: ");
-        long nro = scanner.nextLong();
+        long nro = requestId();
         this.manager.taskToInDone(new Task(nro));
     }
 
     private void waitToPressEnter() {
-        System.out.println("Presiona Enter para continuar...");
+        System.out.println("\nPresiona Enter para continuar...");
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
         try {
@@ -144,10 +173,22 @@ public class ConsoleView {
         System.out.println(this.manager.wasLoadedNoError());
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
+        try{
+            this.cleanner.clean();
+        } catch (Exception e) {}
         do {
             displayMenu();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice;
+            try {
+                choice = scanner.nextInt();
+            } catch (Exception e) {
+                choice = -1;
+            } finally {
+                scanner.nextLine();
+            }
+            try{
+                this.cleanner.clean();
+            } catch (Exception e) {}
             switch (choice) {
                 case 1:
                     createTask();
@@ -156,28 +197,29 @@ public class ConsoleView {
                     listTasks();
                     break;
                 case 3:
-                    updateTask();
+                    taskDetail();
                     break;
                 case 4:
-                    deleteTask();
+                    updateTask();
                     break;
                 case 5:
-                    taskToInProgress();
+                    deleteTask();
                     break;
                 case 6:
-                    taskToInDone();
+                    taskToInProgress();
                     break;
                 case 7:
+                    taskToInDone();
+                    break;
+                case 8:
                     running = false;
                     try{
                         this.manager.storeTasks();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println("Saliendo de la aplicación.");
+                    } catch (Exception e) {}
+                    printTitle(" Saliendo de la aplicación ");
                     break;
                 default:
-                    System.out.println("Opción no válida. Por favor, elija una opción del 1 al 7.");
+                    System.out.println(ANSI_RED +" Opción no válida. Por favor, elija una opción del 1 al 8. " + ANSI_RESET);
             }
             if (running){
                 waitToPressEnter();

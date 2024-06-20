@@ -5,6 +5,7 @@ import org.example.storage.CsvFileManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TaskAdministrator {
 
@@ -37,6 +38,18 @@ public class TaskAdministrator {
         }
     }
 
+    public Optional<Task> getTask(Task task) {
+        Optional<Task> result = Optional.empty();
+        if (task != null) {
+            int i = tasks.indexOf(task);
+            if (i >= 0) {
+                result = Optional.of(tasks.get(i));
+            }
+            return result;
+        }
+        return result;
+    }
+
     public List<Task> getTasks() {
         return this.tasks.stream().toList();
     }
@@ -48,11 +61,13 @@ public class TaskAdministrator {
     }
 
     public void taskToInProgress(Task task) {
-        this.tasks.get(this.tasks.indexOf(task)).markInProgress();
+        Optional<Task> taskToEdit = getTask(task);
+        taskToEdit.ifPresent(Task::markInProgress);
     }
 
     public void taskToInDone(Task task) {
-        this.tasks.get(this.tasks.indexOf(task)).markCompleted();
+        Optional<Task> taskToEdit = getTask(task);
+        taskToEdit.ifPresent(Task::markCompleted);
     }
 
     public void storeTasks() throws IOException {
