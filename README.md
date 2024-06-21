@@ -30,14 +30,14 @@ Sigue los siguientes pasos para compilar y ejecutar la aplicación:
 
 3. **Ejecutar la aplicación**
 
- ``bash
+ ```bash
  java -cp .\target\ToDoProject-1.0-SNAPSHOT.jar org.example.Main
- ``
+ ```
 
 ## Estructura del Proyecto
 
 La estructura principal del proyecto es la siguiente:
-``
+```
 todo_application/
 │
 ├── src/
@@ -57,7 +57,7 @@ todo_application/
 ├── pom.xml
 │
 └── README.md
-``
+```
 - src/: Contiene el código fuente y los recursos de la aplicación.
 - target/: Contiene los artefactos generados después de la compilación y empaquetado, incluyendo el JAR ejecutable.
 - pom.xml: Archivo de configuración de Maven.
