@@ -88,9 +88,11 @@ public class TaskAdministrator {
      * @param newDescription new description of this task
      */
     public void editTask(long id ,String newTitle, String newDescription) {
-        Task taskToEdit = this.tasks.get(this.tasks.indexOf(new Task(id)));
-        taskToEdit.setTitle(newTitle);
-        taskToEdit.setDescription(newDescription);
+        Optional<Task> taskToEdit = this.getTask(new Task(id));
+        if (taskToEdit.isPresent()) {
+            taskToEdit.get().setTitle(newTitle);
+            taskToEdit.get().setDescription(newDescription);
+        }
     }
 
     /**
