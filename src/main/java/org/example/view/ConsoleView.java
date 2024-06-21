@@ -7,10 +7,15 @@ import org.example.view.cleanConsole.CleanConsole;
 import org.example.view.cleanConsole.LinuxCleanner;
 import org.example.view.cleanConsole.WindowsCleanner;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+
+/**
+ *  This class is responsible for console display
+ */
 public class ConsoleView {
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -22,6 +27,11 @@ public class ConsoleView {
     private TaskAdministrator manager;
     private CleanConsole cleanner;
 
+    /**
+     * It creates a console display
+     *
+     * @param manager The manager is the administrator of the tasks
+     */
     public ConsoleView(TaskAdministrator manager) {
         this.manager = manager;
         if (System.getProperty("os.name").contains("Windows")) {
@@ -31,10 +41,18 @@ public class ConsoleView {
         }
     }
 
+    /**
+     * It shows a section title
+     *
+     * @param title The title to display
+     */
     private void printTitle(String title) {
         System.out.println("\n" + ANSI_BLUE + " ===> " + title + " <=== " + ANSI_RESET);
     }
 
+    /**
+     * It shows the menu
+     */
     private void displayMenu() {
         printTitle("MENU DE TO DO");
         System.out.println("1. Crear tarea");
@@ -42,12 +60,15 @@ public class ConsoleView {
         System.out.println("3. Detalle de una tarea");
         System.out.println("4. Actualizar tarea");
         System.out.println("5. Eliminar tarea");
-        System.out.println("6. Marcar tarea como en proceso");
-        System.out.println("7. Marcar tarea como completada");
+        System.out.println("6. Marcar tarea como 'En proceso'");
+        System.out.println("7. Marcar tarea como 'Completada'");
         System.out.println("8. Salir");
         System.out.print("Elija una opción: ");
     }
 
+    /**
+     * It does the display for creating a task
+     */
     private void createTask(){
         printTitle("Crear tarea");
         Scanner scanner = new Scanner(System.in);
@@ -58,6 +79,12 @@ public class ConsoleView {
         this.manager.addTask(new Task(title,descripcion));
     }
 
+    /**
+     * Join tasks to a string
+     *
+     * @param list The list is where tasks are added
+     * @param task Task to add
+     */
     private void loadOutputStateList(StringBuilder list, Task task){
         list.append(" ");
         list.append(task.getId());
@@ -66,6 +93,9 @@ public class ConsoleView {
         list.append("\n");
     }
 
+    /**
+     * It shows the list task
+     */
     private void listTasks(){
         List<Task> tasks = this.manager.getTasks();
         printTitle("Lista de Tareas");
@@ -94,6 +124,11 @@ public class ConsoleView {
         System.out.println(ANSI_GREEN + completed.toString() + ANSI_RESET);
     }
 
+    /**
+     * It requests the task number
+     *
+     * @return Task number
+     */
     private long requestId(){
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
@@ -111,6 +146,9 @@ public class ConsoleView {
         return salida;
     }
 
+    /**
+     * It shows the details of the task
+     */
     private void taskDetail() {
         printTitle("Detalle de una tarea");
         long nro = requestId();
@@ -122,12 +160,18 @@ public class ConsoleView {
         }
     }
 
+    /**
+     * It does the display for delete a task
+     */
     private void deleteTask(){
         printTitle("Borrar una tarea");
         long nro = requestId();
         this.manager.removeTask(new Task(nro));
     }
 
+    /**
+     * It does the display for update a task
+     */
     private void updateTask(){
         printTitle("Actualizar una tarea");
         Scanner scanner = new Scanner(System.in);
@@ -146,18 +190,27 @@ public class ConsoleView {
         }
     }
 
+    /**
+     * It marks a task In Progress
+     */
     private void taskToInProgress(){
         printTitle("Pasar tarea a 'En proceso' ");
         long nro = requestId();
         this.manager.taskToInProgress(new Task(nro));
     }
 
+    /**
+     * It marks a task in Done
+     */
     private void taskToInDone(){
         printTitle("Pasar tarea a 'Completada' ");
         long nro = requestId();
         this.manager.taskToInDone(new Task(nro));
     }
 
+    /**
+     * Shows and waits to press enter
+     */
     private void waitToPressEnter() {
         System.out.println("\nPresiona Enter para continuar...");
         Scanner scanner = new Scanner(System.in);
@@ -169,8 +222,19 @@ public class ConsoleView {
         }
     }
 
+    /**
+     * Run the application
+     */
     public void runApp(){
-        System.out.println(this.manager.wasLoadedNoError());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Code to be executed when pressing Ctrl+C
+            printTitle(" Saliendo de la aplicación ");
+            try {
+                this.manager.storeTasks();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
         try{
@@ -215,7 +279,9 @@ public class ConsoleView {
                     running = false;
                     try{
                         this.manager.storeTasks();
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     printTitle(" Saliendo de la aplicación ");
                     break;
                 default:

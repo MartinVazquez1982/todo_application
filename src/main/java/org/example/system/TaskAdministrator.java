@@ -7,12 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ *  The TaskAdministrator does the administration of the tasks
+ */
 public class TaskAdministrator {
 
     private ArrayList<Task> tasks = new ArrayList<>();
     private CsvFileManager fileManager;
-    private boolean loadedNoError = true;
 
+    /**
+     * It creates a Task administrator
+     *
+     * @param fileManager task storage
+     */
     public TaskAdministrator(CsvFileManager fileManager) {
         this.fileManager = fileManager;
         try {
@@ -21,23 +28,37 @@ public class TaskAdministrator {
             }
         } catch (IOException e) {
             this.tasks = new ArrayList<>();
-            this.loadedNoError = false;
-            System.out.println(e.getMessage());
         }
     }
 
+    /**
+     * Add a new task
+     *
+     * @param task new task
+     */
     public void addTask(Task task) {
         if (task != null) {
             tasks.add(task);
         }
     }
 
+    /**
+     * Remove a task
+     *
+     * @param task task to delete
+     */
     public void removeTask(Task task) {
         if (task != null) {
             tasks.remove(task);
         }
     }
 
+    /**
+     * Returns a task
+     *
+     * @param task task to search
+     * @return Optional with or without task
+     */
     public Optional<Task> getTask(Task task) {
         Optional<Task> result = Optional.empty();
         if (task != null) {
@@ -50,37 +71,54 @@ public class TaskAdministrator {
         return result;
     }
 
+    /**
+     * Returns all tasks
+     *
+     * @return List with the taks
+     */
     public List<Task> getTasks() {
         return this.tasks.stream().toList();
     }
 
+    /**
+     * Update a task
+     *
+     * @param id Task id
+     * @param newTitle new title of this task
+     * @param newDescription new description of this task
+     */
     public void editTask(long id ,String newTitle, String newDescription) {
         Task taskToEdit = this.tasks.get(this.tasks.indexOf(new Task(id)));
         taskToEdit.setTitle(newTitle);
         taskToEdit.setDescription(newDescription);
     }
 
+    /**
+     * Marks a task in in progress
+     *
+     * @param task task to mark in progress
+     */
     public void taskToInProgress(Task task) {
         Optional<Task> taskToEdit = getTask(task);
         taskToEdit.ifPresent(Task::markInProgress);
     }
 
+    /**
+     * Marks a task in done
+     *
+     * @param task task to mark in done
+     */
     public void taskToInDone(Task task) {
         Optional<Task> taskToEdit = getTask(task);
         taskToEdit.ifPresent(Task::markCompleted);
     }
 
+    /**
+     * Stores all tasks
+     *
+     * @throws IOException if an I/O error occurs
+     */
     public void storeTasks() throws IOException {
         this.fileManager.writeAllTasks(tasks);
-    }
-
-    public boolean wasLoadedNoError() {
-        return loadedNoError;
-    }
-
-    public void setFileManager(CsvFileManager fileManager) {
-        if (fileManager != null) {
-            this.fileManager = fileManager;
-        }
     }
 }

@@ -5,14 +5,28 @@ import java.io.*;
 import java.util.*;
 import org.example.system.Task;
 
+/**
+ * Tha class CSVFileManager store and retrieve tasks of a CSV file
+ */
 public class CsvFileManager {
 
     private String fileName;
 
+    /**
+     * It creates a CSVFileManager
+     *
+     * @param fileName path of the CSV file
+     */
     public CsvFileManager(String fileName) {
         this.fileName = fileName;
     }
 
+    /**
+     * Read all tasks in the CSV file
+     *
+     * @return Task list
+     * @throws IOException if an I/O error occurs
+     */
     public List<List<String>> read() throws IOException {
         List<List<String>> list = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -25,6 +39,12 @@ public class CsvFileManager {
         return list;
     }
 
+    /**
+     * Store all task in the CSV file
+     *
+     * @param tasks Task list for store
+     * @throws IOException if an I/O error occurs
+     */
     public void writeAllTasks(List<Task> tasks) throws IOException {
         try (BufferedWriter  bw = new BufferedWriter (new FileWriter(fileName))) {
             for (Task task : tasks) {
