@@ -1,8 +1,9 @@
-package org.example.view;
+package org.example.view.viewTypes;
 
-import org.example.system.Task;
-import org.example.system.TaskAdministrator;
-import org.example.system.TaskState;
+import org.example.system.task.Task;
+import org.example.system.administrator.TaskAdministratorArray;
+import org.example.system.task.TaskState;
+import org.example.view.View;
 import org.example.view.cleanConsole.CleanConsole;
 import org.example.view.cleanConsole.LinuxCleanner;
 import org.example.view.cleanConsole.WindowsCleanner;
@@ -16,7 +17,7 @@ import java.util.Scanner;
 /**
  *  This class is responsible for console display
  */
-public class ConsoleView {
+public class ConsoleView implements View {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -24,7 +25,7 @@ public class ConsoleView {
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
 
-    private TaskAdministrator manager;
+    private final TaskAdministratorArray manager;
     private CleanConsole cleanner;
 
     /**
@@ -32,7 +33,7 @@ public class ConsoleView {
      *
      * @param manager The manager is the administrator of the tasks
      */
-    public ConsoleView(TaskAdministrator manager) {
+    public ConsoleView(TaskAdministratorArray manager) {
         this.manager = manager;
         if (System.getProperty("os.name").contains("Windows")) {
             this.cleanner = new WindowsCleanner();
@@ -282,7 +283,6 @@ public class ConsoleView {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    printTitle(" Saliendo de la aplicación ");
                     break;
                 default:
                     System.out.println(ANSI_RED +" Opción no válida. Por favor, elija una opción del 1 al 8. " + ANSI_RESET);

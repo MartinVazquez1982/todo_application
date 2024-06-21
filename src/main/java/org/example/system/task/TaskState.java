@@ -1,4 +1,4 @@
-package org.example.system;
+package org.example.system.task;
 
 /**
  * The enum TaskState represent the different state of a task

@@ -1,34 +1,26 @@
-package org.example.system;
+package org.example.system.administrator;
 
-import org.example.storage.CsvFileManager;
+import org.example.storage.FileManager;
+import org.example.system.task.Task;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /**
  *  The TaskAdministrator does the administration of the tasks
  */
-public class TaskAdministrator {
+public abstract class TaskAdministrator {
 
-    private ArrayList<Task> tasks = new ArrayList<>();
-    private CsvFileManager fileManager;
+    private final FileManager fileManager;
 
     /**
-     * It creates a Task administrator
+     * It creates a Task administrator array
      *
      * @param fileManager task storage
      */
-    public TaskAdministrator(CsvFileManager fileManager) {
+    public TaskAdministrator(FileManager fileManager) {
         this.fileManager = fileManager;
-        try {
-            for (List<String> task : fileManager.read()) {
-                this.tasks.add(new Task(task.get(0), task.get(1), TaskState.valueOf(task.get(2))));
-            }
-        } catch (IOException e) {
-            this.tasks = new ArrayList<>();
-        }
     }
 
     /**
@@ -36,22 +28,14 @@ public class TaskAdministrator {
      *
      * @param task new task
      */
-    public void addTask(Task task) {
-        if (task != null) {
-            tasks.add(task);
-        }
-    }
+    public abstract void addTask(Task task);
 
     /**
      * Remove a task
      *
      * @param task task to delete
      */
-    public void removeTask(Task task) {
-        if (task != null) {
-            tasks.remove(task);
-        }
-    }
+    public abstract void removeTask(Task task);
 
     /**
      * Returns a task
@@ -59,26 +43,14 @@ public class TaskAdministrator {
      * @param task task to search
      * @return Optional with or without task
      */
-    public Optional<Task> getTask(Task task) {
-        Optional<Task> result = Optional.empty();
-        if (task != null) {
-            int i = tasks.indexOf(task);
-            if (i >= 0) {
-                result = Optional.of(tasks.get(i));
-            }
-            return result;
-        }
-        return result;
-    }
+    public abstract Optional<Task> getTask(Task task);
 
     /**
      * Returns all tasks
      *
      * @return List with the taks
      */
-    public List<Task> getTasks() {
-        return this.tasks.stream().toList();
-    }
+    public abstract List<Task> getTasks();
 
     /**
      * Update a task
@@ -121,6 +93,6 @@ public class TaskAdministrator {
      * @throws IOException if an I/O error occurs
      */
     public void storeTasks() throws IOException {
-        this.fileManager.writeAllTasks(tasks);
+        this.fileManager.writeAllTasks(this.getTasks());
     }
 }

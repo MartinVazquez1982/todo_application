@@ -3,12 +3,12 @@ package org.example.storage;
 
 import java.io.*;
 import java.util.*;
-import org.example.system.Task;
+import org.example.system.task.Task;
 
 /**
  * Tha class CSVFileManager store and retrieve tasks of a CSV file
  */
-public class CsvFileManager {
+public class CsvFileManager implements FileManager{
 
     private String fileName;
 
